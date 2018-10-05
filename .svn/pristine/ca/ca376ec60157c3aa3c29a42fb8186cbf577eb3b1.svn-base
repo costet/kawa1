@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<?php $__env->startSection("tittle"); ?>
+			<title>Plantilla maestra</title>
+		<?php echo $__env->yieldSection(); ?>
+
+		<?php $__env->startSection("css"); ?>
+			<?php echo HTML::style("bootstrap/dist/css/bootstrap.min.css", array("type" => "text/css")); ?>
+
+			<?php echo HTML::style("bootstrap/dist/css/sweetalert.css", array("type" => "text/css")); ?>
+
+			<?php echo HTML::style("dist/css/lightbox.css", array("type" => "text/css")); ?>
+
+    		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    		<style type="text/css">
+    			#piedepagina{
+					width:800px; <!--Esto es referencial de mi pagina ;) -->
+					position: absolute;
+					bottom: 0 !important;
+					bottom: -1px;
+				}
+				body{
+					background-color: #f2f2f2;
+
+				}
+				.card{
+					background-color: rgba(000,000,000,0.8);
+					/*opacity: rgba (000,000,000, .5);*/
+				}
+				html 
+				{
+			        height:100%;
+			        width:100%;
+			    }
+			    body{
+		        	background:#8ba987 url(<?php echo URL::asset('img/fondo2.jpg'); ?>) no-repeat center center;
+			        background-size:100% 100%;
+		    	}
+    		</style>
+		<?php echo $__env->yieldSection(); ?>
+			
+	</head>
+	<body>
+		<?php $__env->startSection("encabezado"); ?>
+			<?php if(Session::get('login') == true): ?>
+	  			 <?php echo $__env->make('tema.menu', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>
+	  		<?php endif; ?>
+		<?php echo $__env->yieldSection(); ?>
+		<div class="container-fluid">		
+			<?php $__env->startSection("contenido"); ?>  	
+			<?php echo $__env->yieldSection(); ?>
+		</div>
+		<?php $__env->startSection("pie_pagina"); ?>
+			<br><br><br><br>
+			<center>
+				
+			</center>
+			
+		<?php echo $__env->yieldSection(); ?>
+
+		<?php $__env->startSection("java"); ?>
+			<?php echo HTML::script("bootstrap/assets/js/vendor/popper.min.js", array("type" => "text/javascript")); ?>
+
+			<?php echo HTML::script("bootstrap/dist/js/jquery.min.js", array("type" => "text/javascript")); ?>
+
+			<?php echo HTML::script("bootstrap/dist/js/bootstrap.min.js", array("type" => "text/javascript")); ?>
+
+			<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+		    <script>window.jQuery || document.write('<script src="bootstrap/assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+		   	<script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+		    <script>
+		      feather.replace()
+		    </script>
+		    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>		    
+		    <?php echo HTML::script("bootstrap/dist/js/sweetalert.min.js", array("type" => "text/javascript")); ?>
+
+		    <?php echo HTML::script("dist/js/lightbox.js", array("type" => "text/javascript")); ?>			
+		<?php echo $__env->yieldSection(); ?>
+	</body>
+</html>

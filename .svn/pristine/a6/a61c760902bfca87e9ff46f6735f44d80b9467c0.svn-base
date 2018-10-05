@@ -1,0 +1,65 @@
+@extends("tema.master")
+@section("tittle")
+	<title>Recibos</title>
+@show
+@section("titulo")
+	<h1 class="h2">Recibos del año {{ $recibos[0]->anio }}</h1>
+@stop
+@section("contenido")
+	<?php $i=1; ?>
+	<div id="accordion">
+		@foreach ($quincenas as $quincena)
+	    	<div class="card">
+			    <div class="card-header" id="heading{{$i}}">
+			      <h5 class="mb-0">
+			        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse{{$i}}" aria-expanded="true" aria-controls="collapse{{$i}}">
+			          {{ $quincena->quincena." - ".$quincena->descripcion }} 
+			        </button>
+			      </h5>
+			    </div>
+			    @if ($i == 1 )
+			    	<div id="collapse{{$i}}" class="collapse show" aria-labelledby="heading{{$i}}" data-parent="#accordion">
+			    @else
+			    	<div id="collapse{{$i}}" class="collapse" aria-labelledby="heading{{$i}}" data-parent="#accordion">
+			    @endif			    
+			      	<div class="card-body">
+				        <table class="table table-bordered">
+					  	<thead>
+						    <tr class="table-danger">
+						      	<th scope="col">Quincena</th>
+						      	<th scope="col">Descripción</th>
+						      	<th scope="col">Plaza</th>
+						      	<th scope="col">Acción</th>
+						    </tr>
+					  	</thead>
+				  		<tbody>
+						    @foreach ($recibos as $recibo)
+						    	@if ($recibo->quincena == $quincena->quincena)
+						    		<tr>
+							    		<td>{{ $recibo->quincena }}</td>
+							    		<td>{{ $recibo->descripcion }}</td>
+							    		<td>
+							    			<?php
+							    				$plaza = substr($recibo->archivo,13,30);
+					        					$plaza=str_replace(".pdf",'',$plaza);
+					        				?>
+							    			{{ $plaza }}
+							    		</td>
+							    		<td><a href="{{ URL::asset("descargar_recibo/".$recibo->quincena."/".$recibo->archivo) }}"><i class="material-icons">picture_as_pdf</i></a></td>
+							    	</tr>
+						    	@endif
+						    	
+						    @endforeach
+				  		</tbody>
+					</table>
+			     	</div>
+			    </div>
+			  </div>
+			<?php $i++; ?>
+	    @endforeach
+	</div>
+
+
+
+
+@stop

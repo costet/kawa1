@@ -1,0 +1,87 @@
+<?php
+
+class ClienteController extends BaseController {
+
+	function showRegistro(){
+		$mercado = null;
+		$cuidades = null;
+		$pais = DB::select("select 
+								c.*
+							from
+								usuario as a
+								inner join paises_por_user as b on a.id=b.id_usuario
+								inner join cat_paises as c on b.id_pais=c.id
+							where 
+								b.activo=1 and a.id=".Session::get('id_usuario')); 
+
+		if ( count($pais) <= 1 ) {
+			$mercado = DB::select("select 
+										b.*
+									from 	
+										cat_mercado_pais as a 
+										inner join cat_mercado as b on a.mercado=b.id
+									where 
+										a.id_pais=".$pais[0]->id);
+			$cuidades= DB::table('oficina_por_pais')->select('*')->where('id_pais',$pais[0]->id)->get();
+		}
+
+		$estatus = Cat_status_cliente::all();
+		
+		return View::make('front.vista_alta_cliente',compact('pais','mercado','cuidades'));
+	}
+
+	function ajax_mercado(){
+		$pais = Input::get('id_pais');
+    	$datos =  DB::select("select 
+								*
+							from 
+								cat_mercado_pais as a 
+								inner join cat_mercado as b on a.mercado=b.id
+							where 
+								a.id_pais=".$pais);
+    	$cuidad= DB::table('oficina_por_pais')->select('*')->where('id_pais',$pais)->get();
+    	$tipos='';
+    	$cuidades='';
+    	foreach ($datos as $tip) {
+			$tipos= $tipos."<option value='".$tip->id."' >".$tip->mercado."</option>";
+		}
+		foreach ($cuidad as $cuida) {
+			$cuidades= $cuidades."<option value='".$cuida->id."' >".$cuida->oficina."</option>";
+		}
+
+    	return array('tipo'=>$tipos,'cuidades'=>$cuidades);
+	}
+	
+
+	function ajax_segmento(){
+		$mercado= Input::get('id_mercado');
+		$pais = Input::get('id_pais');
+    	$datos =  DB::select("select 
+								*
+							from 
+								cat_mercado_segmento as a
+							where 
+								a.id_mercado=".$mercado." and a.id_pais=".$pais);
+    	$tipos='';
+    	foreach ($datos as $tip) {
+			$tipos= $tipos."<option value='".$tip->id."' >".$tip->producto."</option>";
+		}
+
+    	return $tipos;
+	}
+
+	function consulta(){
+
+		$datos=DB::select("SELECT *
+								FROM cliente a
+								INNER JOIN cat_mercado b ON a.id_mercado=b.id
+								INNER JOIN cat_mercado_segmento c ON a.id_segmento=c.id ");
+   
+         // dd($datos);
+
+		return View::make('front.reg_ventas',compact('datos'));
+	}
+
+
+
+}

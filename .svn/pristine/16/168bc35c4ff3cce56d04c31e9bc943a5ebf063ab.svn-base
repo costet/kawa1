@@ -1,0 +1,504 @@
+@extends("tema.master")
+@section("tittle")
+	<title>Labor de Venta</title>
+@stop
+<style type="text/css">
+	label{
+		color: #fff;
+	}
+    .modal-body label{
+        color: #000;
+    }
+</style>
+@section("titulo")
+@stop
+@section("contenido")
+	<div class="card">
+        <div class="card-body">
+            <div class="offset-md-4 offset-sm-4 ">
+                <form class="form-inline" action="{{ URL::asset('consulta') }}" method="post">
+                    <div class="form-group mx-sm-3 mb-2">
+                        <label for="" class="sr-only">Cuidad</label>
+                        <select class="custom-select " name="id_of" id="cuidad" >  
+                            <option value="0">Selecciones un cuidad</option>
+                            @foreach ($cuidades as $cuidad)
+                                <option value="{{ $cuidad->id }}">{{ $cuidad->cuidad }}</option>
+                            @endforeach                       
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-danger mb-2">Buscar Clientes</button>
+                </form>
+            </div>
+
+            @if (Session::get('datos'))
+                <table id="tabla" class="table table-dark table-bordered" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th>VER INFO. COMPLETA</th>
+                            <th>PAIS</th>
+                            <th>CODIGO UNICO</th>
+                            <th>CODIGO_CLIENTE</th>
+                            <th>RAZON</th>
+                            <th>NOMBRE COMERCIAL</th>
+                            <th>SUCURSAL</th>
+                            <th>MERCADO</th>
+                        </tr>
+                    </thead>       
+                    <tbody>
+                        @foreach (Session::get('datos') as $dato)
+                            <tr style="background-color: #000">
+                                <td> <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".{{ $dato->cod_unico }}">Large modal</button> </td>
+                                <td>{{ $dato->pais }}</td>
+                                <td>{{ $dato->cod_unico}}</td>
+                                <td>{{ $dato->cod_cliente}}</td>
+                                <td>{{ $dato->razon}}</td>
+                                <td>{{ $dato->nombre_comercial}}</td>
+                                <td>{{ $dato->sucursal }}</td>
+                                <td>{{ $dato->mercado }}</td>                            
+                            </tr>
+                            <div class="modal fade {{ $dato->cod_unico }}" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Información de {{$dato->nombre_comercial}} </h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                              <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form>
+                                                <div class="form-group row">
+                                                    <label for="" class="col-sm-3 col-form-label">Código Cliente</label>
+                                                    <div class="col-sm-9">
+                                                        <input type="text" class="form-control" id="cod_cliente" placeholder="Código Cliente" name="cod_cliente" value="{{ $dato->cod_unico}}" >
+                                                        <div class="invalid-feedback">
+                                                            Campo necesario !
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="" class="col-sm-3 col-form-label">* Razon social / nombre del cliente</label>
+                                                    <div class="col-sm-9">
+                                                        <input type="text" class="form-control" id="razon" placeholder="Razon social / nombre del cliente" name="razon" value="{{ $dato->razon}}" >
+                                                        <div class="invalid-feedback">
+                                                            Campo necesario !
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="" class="col-sm-3 col-form-label">* Nombre comerciaL</label>
+                                                    <div class="col-sm-9">
+                                                        <input type="text" class="form-control" id="nom_comercial" placeholder="Nombre comercial" name="nom_comercial" onkeyup="" value="{{ $dato->nombre_comercial}}">
+                                                        <div class="invalid-feedback">
+                                                            Campo necesario !
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="" class="col-sm-3 col-form-label">* Sucursal o planta del cliente</label>
+                                                    <div class="col-sm-9">
+                                                        <input type="text" class="form-control" id="sucursal" placeholder="Sucursal o planta del cliente" name="sucursal" onkeyup="" value="{{$dato->sucursal}}">
+                                                        <div class="invalid-feedback">
+                                                            Campo necesario !
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="" class="col-sm-3 col-form-label">* País</label>
+                                                    <div class="col-sm-9">
+                                                        @if (count($pais) > 1)
+                                                            <select class="custom-select " name="pais" id="pais{{$dato->id}}" onchange="buscarMercado(this.value,'{{$dato->id}}')">  
+                                                                <option value="0">Selecciones un país</option>
+                                                                @foreach ($pais as $paises)
+                                                                    <option value="{{ $paises->id }}">{{ $paises->pais }}</option>
+                                                                @endforeach                       
+                                                            </select>
+                                                            <div class="invalid-feedback">
+                                                                    Campo necesario !
+                                                                </div>
+                                                        @else
+                                                            <input type="text" class="form-control" readonly=""  placeholder="" name="pais2" value="{{ $pais[0]->pais }}">
+                                                            <input type="hidden" id="pais{{$dato->id}}" name="pais" value="{{ $pais[0]->id }}">
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="" class="col-sm-3 col-form-label">* Mercado</label>
+                                                    <div class="col-sm-9">
+                                                        @if (count($pais) > 1)
+                                                            <br>
+                                                            <img src="{{ URL::asset('img/loading.gif') }}" id='img_mercado{{$dato->id}}' class="img-responsive" width="40px" style="display: none;">
+                                                            <div id="mercado{{$dato->id}}">
+                                                                <select class="custom-select " name="mer" id="mer{{$dato->id}}" onchange="buscarSegmento(this.value,'{{$dato->id}}')">   
+                                                                    <option value="0">Selecciones un Mercado</option>
+                                                                </select>
+                                                                <div class="invalid-feedback">
+                                                                    Campo necesario !
+                                                                </div>
+                                                            </div>
+                                                        @else
+                                                            <div id="mercado{{$dato->id}}">
+                                                                <select class="custom-select " name="mer" id="mer{{$dato->id}}" onchange="buscarSegmento(this.value,'{{$dato->id}}')">   
+                                                                    <option value="0">Selecciones un Mercado</option>
+                                                                    @foreach ($mercado as $mercado)
+                                                                        <option value="{{ $mercado->id }}">{{ $mercado->mercado }}</option>
+                                                                    @endforeach 
+                                                                </select>
+                                                                <div class="invalid-feedback">
+                                                                    Campo necesario !
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="" class="col-sm-3 col-form-label">* Segmento</label>
+                                                    <div class="col-sm-9">
+                                                       <img src="{{ URL::asset('img/loading.gif') }}" id='img_segmento{{$dato->id}}' class="img-responsive" width="40px" style="display: none;">
+                                                        <div id="segmento{{$dato->id}}">
+                                                            <select class="custom-select " name="seg" id="seg"> 
+                                                                <option value="0">Selecciones un segmento</option>
+                                                            </select>
+                                                            <div class="invalid-feedback">
+                                                                Campo necesario !
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="" class="col-sm-3 col-form-label">* Oficina Responsable</label>
+                                                    <div class="col-sm-9">
+                                                        @if (count($pais) > 1)
+                                                            <img src="{{ URL::asset('img/loading.gif') }}" id='img_segmento' class="img-responsive" width="40px" style="display: none;">
+                                                            <div id="oficina{{$dato->id}}">
+                                                                <select class="custom-select " name="oficina" id="oficinaa" onchange="mostrarzona(this.value)" >    
+                                                                    <option value="0">Selecciones una Cuidad</option>
+                                                                </select>
+                                                                <div class="invalid-feedback">
+                                                                    Campo necesario !
+                                                                </div>
+                                                            </div>
+                                                        @else
+                                                            <select class="custom-select " name="oficina" id="oficina{{$dato->id}}"> 
+                                                                <option value="0">Selecciones una Cuidad</option>
+                                                                @foreach ($cuidades as $element)
+                                                                    <option value="{{ $element->id }}">{{ $element->oficina }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <div class="invalid-feedback">
+                                                                Campo necesario !
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="" class="col-sm-3 col-form-label">Estatus</label>
+                                                    <div class="col-sm-9">
+                                                        <input type="text" class="form-control" id="sucursal" placeholder="Sucursal o planta del cliente" name="sucursal" onkeyup="">
+                                                        <div class="invalid-feedback">
+                                                            Campo necesario !
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label for="" class="col-sm-3 col-form-label">Zona</label>
+                                                    <div class="col-sm-9">
+                                                        @if (count($pais) > 1)
+                                                            <input type="text" class="form-control" id="zona{{$dato->id}}" placeholder="" name="zona" value="" readonly="" >
+                                                        @else
+                                                            @if ($pais[0]->id == 1 )
+                                                                <input type="text" class="form-control" id="zona{{$dato->id}}" placeholder="" name="zona" value="" readonly="" >
+                                                            @else
+                                                                <input type="text" class="form-control" id="zona{{$dato->id}}" placeholder="" name="zona" value="" >
+                                                            @endif
+                                                            
+                                                        @endif
+                                                        
+                                                        <div class="invalid-feedback">
+                                                            Campo necesario !
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                            <button type="button" class="btn btn-primary">Guardar Cambios</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </tbody>
+                </table>  
+            @endif
+        </div>
+    </div>
+	
+@stop
+
+@section("java")
+	@parent
+	{{HTML::script("bootstrap/dist/js/jquery.min.js", array("type" => "text/javascript"))}}
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css"/>
+	{{HTML::script("//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js", array("type" => "text/javascript"))}}
+
+	<script type="text/javascript">
+	 
+	 $(document).ready(function(){
+		    $('#tabla').DataTable({
+                // "language": {
+                //   "url": "{{URL::to('js/lenguajeDataTable/es_es.json')}}"
+                // },
+                "lengthMenu": [[10, 50, 100, -1], [10, 50, 100, "Todos"]],
+                "order": [[ 4, "asc" ],[ 0, "asc" ]]
+
+                
+            });
+            
+		});
+    function validarfile(nombre){
+            valor = $("#"+nombre).val();
+            // console.log(nombre+'-'+valor);
+            if( valor == null || valor.length == 0 || /^\s+$/.test(valor) || valor == '' ) {
+                $("#"+nombre).attr('class','form-control is-invalid');
+                // $("#"+nombre).parent().attr("class", "form-group has-error has-feedback");
+                return 0;
+            }else{
+                $("#"+nombre).attr('class','form-control is-valid');
+                return 1;
+            }
+        }
+
+        function validarSelect(nombre){
+            valor = $("#"+nombre).val();
+            if( valor == '0' ) {
+                $("#"+nombre).attr('class','form-control is-invalid');
+                // $("#"+nombre).parent().attr("class", "form-group has-error has-feedback");
+                return 0;
+            }else{
+                $("#"+nombre).attr('class','form-control is-valid');
+                return 1;
+            }
+        }
+
+        
+
+        function registrar(){
+
+            var razon = validarfile('razon');
+            var nombre = validarfile('nom_comercial');
+            var sucursal = validarfile('sucursal');
+            var pais = validarSelect('pais');
+            var mercado = validarSelect('mer');
+            var segV = $("#mer").val();
+            if(segV == 14){
+                var segmento = validarfile('otro');
+            }else{
+                var segmento = validarSelect('seg');
+            }
+            
+            var oficina = validarSelect('oficinaa');        
+            
+
+            if(razon == 0 || nombre == 0 || sucursal==0 || mercado == 0 || segmento == 0 || oficina==0  || pais==0 ){
+
+                swal ( "Alerta !" ,  "Es necesario todos los campos para realizar el registro" ,  "error" );
+            }
+            else{
+                swal({
+                      title: "¿Seguro de Registrar?",
+                      text: "REGISTRO!",
+                      type: "warning",
+                      showCancelButton: true,
+                      closeOnConfirm: false,
+                      confirmButtonColor: "#DD6B55",
+                      confirmButtonText: "Si, registrar!",
+                      cancelButtonText: "No, cancelar!",
+                      showLoaderOnConfirm: true
+                    }, function () {
+                        setTimeout(function () {
+                            var formData = new FormData(document.getElementById("form_datos"));
+                                $.ajax({
+                                     type: 'post',   
+                                     cache: false,
+                                     url:'{{ URL::asset("/registrar") }}' ,    
+                                     data: formData,
+                                     contentType:false,
+                                     processData: false,
+                                     dataType: "json",
+                                     success: 
+                                        function(data) 
+                                        {
+                                            if(data.error == 0 ){
+                                                swal({   title: "Registro Exitoso",   text: data.mensaje, type:"success" },
+                                                    function(){   
+                                                        location.reload();
+                                                    }
+                                                );
+                                            }else{
+                                                swal({   title: "Error",   text: data.mensaje, type:"error" });
+                                            }
+                                            
+                                            
+                                        }
+                                 });
+                        }, 1000);
+                    });
+            }
+            
+        }
+                
+        function buscarMercado(valor,id){
+            document.getElementById("mercado"+id).innerHTML =" ";
+            document.getElementById("oficina"+id).innerHTML =" ";
+            // document.getElementById("verDirec"+id).innerHTML =" ";
+            $("#img_mercado"+id).show();
+            $("#img_oficina"+id).show();
+
+            var pais = $("#pais"+id).val();
+
+            $("#zona"+id).attr('readonly',true);
+            $("#zona"+id).val('');
+
+            if(pais != 1 ){
+                $("#zona"+id).attr('readonly',false);
+            }
+
+            // if(pais == 1){
+            
+            //     $("#verDirec"+id).append("<div class='form-row'><div class='form-group col-md-4'><label >Calle</label><input type='text' class='form-control' placeholder='Calle' name='calle' id='calle' ><div class='invalid-feedback'>Campo necesario !</div></div><div class='form-group col-md-4'><label >Número</label><input type='text' class='form-control' placeholder='Número' name='no' id='no' ><div class='invalid-feedback'>Campo necesario !</div></div><div class='form-group col-md-4'><label >Colonia</label><input type='text' class='form-control' id='colonia' placeholder='Colonia' name='col' ></div><div class='form-group col-md-4'><label >Código postal</label><input type='number' class='form-control' id='tags' placeholder='Código Postal' name='cp' min='0' ><div class='invalid-feedback'>Campo necesario !</div></div><div class='form-group col-md-4'><label >Municipio</label><input type='text' class='form-control' id='muni'  placeholder='Municipio' name='muni' ></div><div class='form-group col-md-4'><label >Estado</label><input type='text' class='form-control' id='estado'  placeholder='Estado' name='estado' ></div></div>");
+            // }else if(pais > 1){
+            //     $("#verDirec"+id).append("<div class='form-row'>"+
+            //                             "<div class='form-group col-md-12'>"+
+            //                                 "<label>DIRECCIÓN</label>"+
+            //                                 "<input type='text' class='form-control' placeholder='Dirección' name='direccion' id='direccion' >"+
+            //                                 "<div class='invalid-feedback'>"+
+            //                                     "Campo necesario !"+
+            //                                 "</div>"+
+            //                             "</div>"+
+            //                         "</div>");
+            // }
+
+            $.get("{{ URL::asset('ajax_mercado') }}", {id_pais: valor}, function(data) {
+                $("#img_mercado"+id).hide();
+                $("#img_oficina"+id).hide();
+                $("#mercado"+id).append("<select class='custom-select' name='mer'  id='mer' onchange='buscarSegmento(this.value,"+id+")'><option readonly value='0' selected  >Seleccione una mercado</option>"+data.tipo+"</select><div class='invalid-feedback'>Campo necesario !</div>");
+                $("#oficina"+id).append("<select class='custom-select' name='oficina'  id='oficinaa'onchange='mostrarzona(this.value,"+id+")' ><option readonly value='0' selected  >Seleccione una Oficina</option>"+data.cuidades+"</select><div class='invalid-feedback'>Campo necesario !</div>");
+                
+
+            });
+        }
+
+        function buscarSegmento(valor,id){
+            var pais = $('#pais'+id).val();
+            console.log(id);
+            document.getElementById("segmento"+id).innerHTML =" ";
+
+            $("#img_segmento"+id).show();
+            $.get("{{ URL::asset('ajax_segmento') }}", {id_mercado: valor,id_pais:pais}, function(data) {
+                $("#img_segmento"+id).hide();
+                if(valor == 14){
+                    $("#segmento"+id).append("<input type='text' class='form-control' id='otro' placeholder='Otro' name='otro' ><div class='invalid-feedback'>Campo necesario !</div>");
+                }else{
+                    if(data != ''){
+                        $("#segmento"+id).append("<select class='custom-select' name='seg'  id='seg'><option readonly value='0' selected  >Seleccione una segmento</option>"+data+"</select><div class='invalid-feedback'>Campo necesario !</div>");
+                    }else{
+                        $("#segmento"+id).append("<select class='custom-select' name='seg'><option readonly value='0' selected >Seleccione una segmento</option></select><div class='invalid-feedback'>Campo necesario !</div>");
+                    }
+                }
+            });
+        }
+
+        function mostrarzona(id,id2){
+            console.log(id);
+            var pais = $("#pais"+id2).val();
+            $("#zona"+id2).attr('readonly',true);
+            $("#zona"+id2).val('');
+            if(pais == 1 ){
+                if(id == 3 || id == 6 || id == 5){
+                    $("#zona"+id2).val(1);
+                }
+                if(id == 1 || id == 2 || id == 4){
+                    $("#zona"+id2).val(2);
+                }
+                if(id == 7 || id == 8 || id == 9){
+                    $("#zona"+id2).val(3);
+                }
+            }else{
+                $("#zona"+id2).attr('readonly',false);
+            }
+        }
+
+        function agregarContac(){
+            var ii = $("#cont").val();
+            var num = parseInt(ii) + 1;
+
+            var i = $("#cont2").val();
+            var num2 = parseInt(i) + 1;
+
+            if(ii <= 3 ){
+                $("#contacto").append("<div class='col-md-6 col-sm-6' id='div"+i+"' >"+
+                                        "<label>Contacto</label>"+
+                                        "<div class='form-row'>"+
+                                            "<div class='form-group col-md-4'>"+
+                                                "<label >Nombre</label>"+
+                                                "<input type='text' class='form-control' placeholder='Nombre' name='nom_contac"+i+"' id='nom_contac"+i+"' >"+
+                                                "<div class='invalid-feedback'>"+
+                                                    "Campo necesario !"+
+                                                "</div>"+
+                                            "</div>"+
+                                            "<div class='form-group col-md-4'>"+
+                                                "<label >Cargo</label>"+
+                                                "<input type='text' class='form-control' placeholder='Cargo' name='car_contac"+i+"' id='car_contac"+i+"' >"+
+                                                "<div class='invalid-feedback'>"+
+                                                    "Campo necesario !"+
+                                                "</div>"+
+                                            "</div>"+
+                                            "<div class='form-group col-md-4'>"+
+                                                "<label >Télefono</label>"+
+                                                "<input type='text' class='form-control' id='tel_contac"+i+"' placeholder='Télefono' name='tel_contac"+i+"' >"+
+                                            "</div>"+
+                                            "<div class='form-group col-md-4'>"+
+                                                "<label >Móvil</label>"+
+                                                "<input type='text' class='form-control' id='mov_contac"+i+"' placeholder='Móvil' name='mov_contac"+i+"'  >"+
+                                                "<div class='invalid-feedback'>"+
+                                                    "Campo necesario !"+
+                                                "</div>"+
+                                            "</div>"+
+                                            "<div class='form-group col-md-4'>"+
+                                                "<label >Correo</label>"+
+                                                "<input type='text' class='form-control' id='correo_contac"+i+"' placeholder='Correo' name='correo_contac"+i+"'  >"+
+                                                "<div class='invalid-feedback'>"+
+                                                    "Campo necesario !"+
+                                                "</div>"+
+                                            "</div>"+
+                                            "<div class='form-group col-md-4'>"+
+                                                "<label >Eliminar Contacto</label>"+
+                                                "<input type='button' class='btn btn-danger btn-block' id='eliminar_cont"+i+"' value='Eliminar Contacto' onclick='elimiar_btn("+i+")'  >"+
+                                                "<div class='invalid-feedback'>"+
+                                                    "Campo necesario !"+
+                                                "</div>"+
+                                            "</div>"+
+                                        "</div>"+
+                                    "</div>");
+                $("#cont").val(num);
+                $("#cont2").val(num2);
+            }
+            
+            
+        }
+
+        function elimiar_btn(id){
+            console.log(id);
+            $("#div"+id).remove();
+            var i = $("#cont").val();
+            var num = parseInt(i) - 1;
+            $("#cont").val(num);
+        }
+
+	    	
+	</script>
+@stop

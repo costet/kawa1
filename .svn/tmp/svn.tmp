@@ -1,0 +1,170 @@
+<?php
+
+class ClienteController extends BaseController {
+
+	function showRegistro(){
+		$mercado = null;
+		$cuidades = null;
+		$pais = DB::select("select 
+								c.*
+							from
+								usuario as a
+								inner join paises_por_user as b on a.id=b.id_usuario
+								inner join cat_paises as c on b.id_pais=c.id
+							where 
+								b.activo=1 and a.id=".Session::get('id_usuario')); 
+
+		if ( count($pais) <= 1 ) {
+			$mercado = DB::select("select 
+										b.*
+									from 	
+										cat_mercado_pais as a 
+										inner join cat_mercado as b on a.mercado=b.id
+									where 
+										a.id_pais=".$pais[0]->id);
+			$cuidades= DB::table('oficina_por_pais')->select('*')->where('id_pais',$pais[0]->id)->get();
+		}
+
+		$estatus = Cat_status_cliente::all();
+		
+		return View::make('front.vista_alta_cliente',compact('pais','mercado','cuidades','estatus'));
+	}
+
+	function ajax_mercado(){
+		$pais = Input::get('id_pais');
+    	$datos =  DB::select("select 
+								*
+							from 
+								cat_mercado_pais as a 
+								inner join cat_mercado as b on a.mercado=b.id
+							where 
+								a.id_pais=".$pais);
+    	$cuidad= DB::table('oficina_por_pais')->select('*')->where('id_pais',$pais)->get();
+    	$tipos='';
+    	$cuidades='';
+    	foreach ($datos as $tip) {
+			$tipos= $tipos."<option value='".$tip->id."' >".$tip->mercado."</option>";
+		}
+		foreach ($cuidad as $cuida) {
+			$cuidades= $cuidades."<option value='".$cuida->id."' >".$cuida->oficina."</option>";
+		}
+
+    	return array('tipo'=>$tipos,'cuidades'=>$cuidades);
+	}
+	
+
+	function ajax_segmento(){
+		$mercado= Input::get('id_mercado');
+		$pais = Input::get('id_pais');
+    	$datos =  DB::select("select 
+								*
+							from 
+								cat_mercado_segmento as a
+							where 
+								a.id_mercado=".$mercado." and a.id_pais=".$pais);
+    	$tipos='';
+    	foreach ($datos as $tip) {
+			$tipos= $tipos."<option value='".$tip->id."' >".$tip->producto."</option>";
+		}
+
+    	return $tipos;
+	}
+
+	function registrar_cliente(){
+
+		$validator = Validator::make(
+		    array('razon' => Input::get('razon'),'nom_comer'=>Input::get('nom_comercial'),'sucursal'=>Input::get('sucursal'), 'mercado'=>Input::get('mer'), 'segmento'=>(Input::has('seg')) ? Input::get('seg') : Input::get('otro'),'pais'=>Input::get('pais'),'of_resp'=>Input::get('oficina')  ),
+		    array('razon' => 'required','nom_comer' => 'required','sucursal' => 'required','mercado' => 'required','segmento' => 'required','of_resp' => 'required')
+		);
+
+		if (!$validator->fails() ){
+			$razon = Input::get('razon');
+			$nom_comer = Input::get('nom_comercial');
+			$sucursal = Input::get('sucursal');
+			$id_mercado = Input::get('mer');
+			$id_segmento = Input::get('seg');
+			$id_pais = Input::get('pais');
+			$id_of_resp= Input::get('oficina');
+			$zona= Input::get('zona');
+
+			$cliente = new Cliente();
+			$cliente->razon = $razon;
+			$cliente->nombre_comercial = $nom_comer;
+			$cliente->sucursal = $sucursal;
+			$cliente->id_mercado = $id_mercado;
+			if (Input::has('seg')) {
+				$cliente->id_segmento = $id_segmento;
+			}else{
+				$cliente->otro =Input::get('otro');
+			}
+			
+			$cliente->id_oficina_central = $id_of_resp;
+			$cliente->id_pais = $id_pais;
+			$cliente->zona = $zona;
+			$cliente->cod_cliente = (Input::has('cod_cliente')) ?  Input::get('cod_cliente') : null ;
+			$cliente->id_estatus = (Input::has('estatus_client')) ?  Input::get('estatus_client') : null ;
+
+			if ($cliente->save()) {
+				$cont = Input::get('cont2');
+				if ($id_pais == 1 ) {
+					$direccion = new Direccion_mex();
+					$direccion->id_cliente = $cliente->id;
+					$direccion->calle = Input::get('calle');
+					$direccion->numero = Input::get('no');
+					$direccion->colonia = Input::get('col');
+					$direccion->cp = Input::get('cp');
+					$direccion->municipio = Input::get('muni');
+					$direccion->id_estado = Input::get('estado');
+					$direccion->id_pais = $id_pais;
+					$direccion->save();
+				}else{
+					$direccion = new Direccion_paises();
+					$direccion->direccion= Input::get('direccion');
+					$direccion->id_cliente = $cliente->id;
+					$direccion->id_pais = $id_pais;
+					$direccion->save();
+				}
+				$client = Cliente::find($cliente->id);
+				$cod_pais = DB::table('cat_paises')->select('*')->where('id',$id_pais)->get();
+				$client->cod_unico = $cod_pais[0]->cod.$cliente->id ;			
+				$client->save(); 
+
+				for ($i=1; $i <= $cont ; $i++) { 
+					if(Input::get('nom_contac'.$i ) ){
+						$contacto = new Contacto();
+						$contacto->id_cliente = $cliente->id;
+						$contacto->nombre = Input::get('nom_contac'.$i );
+						$contacto->cargo = Input::get('car_contac'.$i );
+						$contacto->tel = Input::get('tel_contac'.$i );
+						$contacto->cel = Input::get('mov_contac'.$i );
+						$contacto->correo = Input::get('correo_contac'.$i );
+						$contacto->save();
+					}
+				}
+				return Response::json(array('error'=>0,'mensaje'=>'Se ha registrado con exito el Cliente'));
+
+			}else{
+				return Response::json(array('error'=>1,'mensaje'=>'Error al registrar el cliente'));
+			}		
+
+		}else{
+			return Response::json(array('error'=>1,'mensaje'=>$validator->failed() ));
+		}
+	}
+
+	function consultar_clientes(){
+		$clientes = DB::select("select 
+									*
+								from 
+									cliente as a 
+									inner join cat_mercado as b on a.id_mercado=b.id
+									left join cat_mercado_segmento as c on c.id=a.id_segmento
+									inner join oficina_por_pais as d on a.id_oficina_central=d.id
+									left join cat_status_cliente as e on a.id_estatus=e.id
+									left join 	cat_estatus_detalle as f on a.id_estatus_detalle=f.id
+									left join contactos as g on g.id_cliente=a.id");
+		dd($clientes);	
+	}
+
+
+}

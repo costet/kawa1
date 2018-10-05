@@ -1,0 +1,11 @@
+@extends("tema.master")
+@section('tittle')
+	<title>Constancias de Servicio</title>
+@stop
+@section("titulo")
+	<h1 class="h2">Constancias de Servicio</h1>
+@stop
+@section("contenido")
+	<iframe src="http://tramitanet.iebem.edu.mx/altas/constancias/OF.php" width="100%" height="650px" style="border: none"></iframe>
+</div>
+@stop

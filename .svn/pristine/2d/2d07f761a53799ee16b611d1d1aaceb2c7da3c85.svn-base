@@ -1,0 +1,16 @@
+<?php
+// Route::get('/inicioGoogle', array('uses' => 'SeguridadController@iniciarSession') );
+Route::post('/iniciosesion', array('uses' => 'SeguridadController@iniciarSession') );
+Route::get('/salir', array('uses' => 'SeguridadController@salir') );
+Route::get("/login",function(){return View::make('front.login');});
+
+Route::group(array("before" => "is_login"), function(){
+	Route::get("/","ClienteController@showRegistro");
+	Route::get("/alta_cliente","ClienteController@showRegistro");
+	Route::get("/ajax_segmento","ClienteController@ajax_segmento");
+	Route::get("/ajax_mercado","ClienteController@ajax_mercado");
+	Route::post("/registrar","ClienteController@registrar_cliente");
+	Route::get("/consultar_clientes","ClienteController@consultar_clientes");
+	Route::post("/consulta","ClienteController@consulta");
+
+});

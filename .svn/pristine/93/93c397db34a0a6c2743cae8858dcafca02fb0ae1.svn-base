@@ -1,0 +1,69 @@
+@extends("tema.master")
+@section("tittle")
+	<title>Labor de Venta</title>
+@stop
+<style type="text/css">
+	/*label{
+		color: #fff;
+	}*/
+</style>
+@section("titulo")
+@stop
+@section("contenido")
+<br><br>
+
+
+		<table id="tabla" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>CODIGO UNICO</th>
+                        <th>CODIGO_CLIENTE</th>
+                        <th>RAZON</th>
+                        <th>NOMBRE COMERCIAL</th>
+                        <th>SUCURSAL</th>
+                        <th>MERCADO</th>
+                    </tr>
+                </thead>       
+                <tbody>
+                    @foreach ($datos as $dato)
+                        <tr>
+                            <td>{{ $dato->id }}</td>
+                            <td>{{$dato->cod_unico}}</td>
+                            <td>{{$dato->cod_cliente}}</td>
+                            <td>{{ $dato->razon}}</td>
+                            <td>{{ $dato->nombre_comercial}}</td>
+                            <td>{{ $dato->sucursal }}</td>
+                            <td>{{ $dato->mercado }}</td>                            
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>  
+ 
+	
+@stop
+
+@section("java")
+	@parent
+	{{HTML::script("bootstrap/dist/js/jquery.min.js", array("type" => "text/javascript"))}}
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css"/>
+	{{HTML::script("//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js", array("type" => "text/javascript"))}}
+
+	<script type="text/javascript">
+	 
+	 $(document).ready(function(){
+		    $('#tabla').DataTable({
+                // "language": {
+                //   "url": "{{URL::to('js/lenguajeDataTable/es_es.json')}}"
+                // },
+                "lengthMenu": [[10, 50, 100, -1], [10, 50, 100, "Todos"]],
+                "order": [[ 4, "asc" ],[ 0, "asc" ]]
+
+                
+            });
+            
+		});
+	    	
+	</script>
+@stop

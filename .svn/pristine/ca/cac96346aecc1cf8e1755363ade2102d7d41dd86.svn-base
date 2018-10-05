@@ -1,0 +1,22 @@
+{
+	"processing":     "Procesamiento en curso...",
+	"search":         "Buscar:",
+	"lengthMenu":    "Mostrar de a _MENU_ elementos",
+	"info":           "Registros del _START_ al _END_ de _TOTAL_ elementos",
+	"infoEmpty":      "No hay elementos para mostrar",
+	"infoFiltered":   "(Filtrar de _MAX_ elementos en total)",
+	"infoPostFix":    "",
+	"loadingRecords": "Cargando...",
+	"zeroRecords":    "No se han encontrado registros",
+	"emptyTable":     "No hay elementos para mostrar",
+	"paginate": {
+	    "first":      "Primero",
+	    "previous":   "Previo",
+	    "next":       "Siguiente",
+	    "last":       "Ultimo"
+	},
+	"aria": {
+	    "sortAscending":  ": habilitado para ordenar la columna en orden ascendente",
+	    "sortDescending": ": habilitado para ordenar la columna en orden descendente"
+	}
+}
